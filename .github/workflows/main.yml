@@ -1,0 +1,36 @@
+name: Android-Cloud
+on: workflow_dispatch
+
+jobs:
+  android-emulator:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Install and Start Tailscale
+        run: |
+          curl -fsSL https://tailscale.com/install.sh | sh
+          sudo tailscaled &
+          sleep 10
+          sudo tailscale up --authkey=tskey-auth-km41PegTt411CNTRL-5TW7SxEt4CVdXscc1sesBVULDisv7VEpP
+
+      - name: Enable KVM Hardware Acceleration
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
+          sudo adduser $USER kvm
+          sudo adduser $USER libvirt
+
+      - name: Run Android Container (Docker)
+        run: |
+          docker run -d \
+            --name android-container \
+            --device /dev/kvm \
+            -p 6080:6080 \
+            -e EMULATOR_DEVICE="Samsung Galaxy S10" \
+            -e WEB_VNC=true \
+            budtmo/docker-android:emulator_9.0
+
+      - name: System Keep-Alive
+        run: sleep 21600
