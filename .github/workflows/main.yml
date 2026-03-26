@@ -13,25 +13,18 @@ jobs:
           curl -fsSL https://tailscale.com/install.sh | sh
           sudo tailscaled &
           sleep 10
-          sudo tailscale up --authkey=tskey-auth-km41PegTt411CNTRL-5TW7SxEt4CVdXscc1sesBVULDisv7VEpP || sudo tailscale up
-
-      - name: Enable KVM
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
-          sudo adduser $USER kvm
-          sudo adduser $USER libvirt
+          sudo tailscale up --authkey=tskey-auth-km41PegTt411CNTRL-5TW7SxEt4CVdXscc1sesBVULDisv7VEpP --accept-routes
 
       - name: Run Android Container
         run: |
           docker run -d \
             --name android-container \
             --privileged \
-            -p 5901:5901 \
-            -p 6080:6080 \
+            --network host \
             -e EMULATOR_DEVICE="Samsung Galaxy S10" \
             -e WEB_VNC=true \
             budtmo/docker-android:emulator_9.0
 
       - name: Keep Alive
+        run: sleep 21600
         run: sleep 21600
