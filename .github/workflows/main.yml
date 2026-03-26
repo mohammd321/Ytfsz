@@ -12,8 +12,8 @@ jobs:
         run: |
           curl -fsSL https://tailscale.com/install.sh | sh
           sudo tailscaled &
-          sleep 10
-          sudo tailscale up --authkey=tskey-auth-km41PegTt411CNTRL-5TW7SxEt4CVdXscc1sesBVULDisv7VEpP --accept-routes
+          sleep 5
+          sudo tailscale up --accept-routes || true
 
       - name: Run Android Container
         run: |
