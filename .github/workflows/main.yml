@@ -8,21 +8,25 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Install and Start Tailscale
+      - name: Install Tailscale
         run: |
           curl -fsSL https://tailscale.com/install.sh | sh
           sudo tailscaled &
           sleep 10
-          sudo tailscale up --authkey=tskey-auth-km41PegTt411CNTRL-5TW7SxEt4CVdXscc1sesBVULDisv7VEpP
 
-      - name: Enable KVM Hardware Acceleration
+      - name: Manual Login Link
+        run: |
+          echo "Click the link below to login:"
+          sudo tailscale up --authkey=tskey-auth-km41PegTt411CNTRL-5TW7SxEt4CVdXscc1sesBVULDisv7VEpP || sudo tailscale up
+
+      - name: Enable KVM
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
           sudo adduser $USER kvm
           sudo adduser $USER libvirt
 
-      - name: Run Android Container (Docker)
+      - name: Run Android
         run: |
           docker run -d \
             --name android-container \
@@ -32,5 +36,5 @@ jobs:
             -e WEB_VNC=true \
             budtmo/docker-android:emulator_9.0
 
-      - name: System Keep-Alive
+      - name: Keep Alive
         run: sleep 21600
