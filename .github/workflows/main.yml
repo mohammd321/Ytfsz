@@ -27,4 +27,3 @@ jobs:
 
       - name: Keep Alive
         run: sleep 21600
-        run: sleep 21600
