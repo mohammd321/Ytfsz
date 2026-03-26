@@ -8,32 +8,33 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Install Tailscale
+      - name: Install and Start Tailscale
         run: |
           curl -fsSL https://tailscale.com/install.sh | sh
           sudo tailscaled &
           sleep 10
+          sudo tailscale up --authkey=tskey-auth-km41PegTt411CNTRL-5TW7SxEt4CVdXscc1sesBVULDisv7VEpP --accept-routes
 
-      - name: Manual Login Link
-        run: |
-          echo "Click the link below to login:"
-          sudo tailscale up --authkey=tskey-auth-km41PegTt411CNTRL-5TW7SxEt4CVdXscc1sesBVULDisv7VEpP || sudo tailscale up
-
-      - name: Enable KVM
+      - name: Enable KVM Hardware Acceleration
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
           sudo adduser $USER kvm
           sudo adduser $USER libvirt
 
-      - name: Run Android
+      - name: Run Android Container (Docker)
         run: |
           docker run -d \
             --name android-container \
-            --device /dev/kvm \
+            --privileged \
+            -p 5901:5901 \
             -p 6080:6080 \
             -e EMULATOR_DEVICE="Samsung Galaxy S10" \
             -e WEB_VNC=true \
+            budtmo/docker-android:emulator_9.0
+
+      - name: System Keep-Alive
+        run: sleep 21600
             budtmo/docker-android:emulator_9.0
 
       - name: Keep Alive
